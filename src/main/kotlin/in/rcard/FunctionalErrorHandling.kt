@@ -1,28 +1,37 @@
 package `in`.rcard
 
 fun main() {
-    val companiesService = CompaniesService(FakeCompanies())
-    val availableCompaniesNames = companiesService.getAvailableCompaniesNames()
-    println("Available companies are: $availableCompaniesNames")
+    val jobsService = JobsService(FakeJobs())
+    val highlyPaidJobs = jobsService.getHighlyPaidJobs(Salary(100_000.00))
+    println("Best jobs on the market are: $highlyPaidJobs")
 }
 
-interface Companies {
-    fun findAll(): List<Company>
+interface Jobs {
+    fun findAll(): List<Job>
 }
 
-class FakeCompanies : Companies {
-    override fun findAll(): List<Company> = throw RuntimeException("Boom!")
+class FakeJobs : Jobs {
+    override fun findAll(): List<Job> = throw RuntimeException("Boom!")
 }
 
-class CompaniesService(private val companies: Companies) {
-    fun getAvailableCompaniesNames(): List<String> {
-        val retrievedCompanies = companies.findAll()
+class JobsService(private val jobs: Jobs) {
+    fun getHighlyPaidJobs(minimumSalary: Salary): List<Job> {
+        val retrievedJobs = jobs.findAll()
         return try {
-            retrievedCompanies.map { it.name }
+            retrievedJobs.filter { it.salary.value > minimumSalary.value }
         } catch (e: Exception) {
             listOf()
         }
     }
 }
 
-data class Company(val name: String)
+data class Job(val company: Company, val role: Role, val salary: Salary)
+
+@JvmInline
+value class Company(val name: String)
+
+@JvmInline
+value class Role(val name: String)
+
+@JvmInline
+value class Salary(val value: Double)
