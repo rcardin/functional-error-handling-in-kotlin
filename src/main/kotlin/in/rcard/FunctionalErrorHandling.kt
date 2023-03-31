@@ -18,11 +18,24 @@ class JobsService(private val jobs: Jobs) {
     fun getHighlyPaidJobs(minimumSalary: Salary): List<Job> {
         val retrievedJobs = jobs.findAll()
         return try {
-            retrievedJobs.filter { it.salary.value > minimumSalary.value }
+            retrievedJobs.filter { it.salary > minimumSalary }
         } catch (e: Exception) {
             listOf()
         }
     }
+}
+
+interface NullableJobs {
+    fun findAll(): List<Job>?
+}
+
+class LiveNullableJobs : NullableJobs {
+    override fun findAll(): List<Job>? = null
+}
+
+class NullableJobsService(private val jobs: NullableJobs) {
+    fun getHighlyPaidJobs(minimumSalary: Salary): List<Job> =
+        jobs.findAll().filter { it.salary > minimumSalary }
 }
 
 data class Job(val company: Company, val role: Role, val salary: Salary)
@@ -34,4 +47,6 @@ value class Company(val name: String)
 value class Role(val name: String)
 
 @JvmInline
-value class Salary(val value: Double)
+value class Salary(val value: Double) {
+    operator fun compareTo(other: Salary): Int = value.compareTo(other.value)
+}
