@@ -1,7 +1,7 @@
 package `in`.rcard
 
 fun main() {
-    val jobsService = JobsService(FakeJobs())
+    val jobsService = NullableJobsService(LiveNullableJobs())
     val highlyPaidJobs = jobsService.getHighlyPaidJobs(Salary(100_000.00))
     println("Best jobs on the market are: $highlyPaidJobs")
 }
@@ -36,6 +36,13 @@ class LiveNullableJobs : NullableJobs {
 class NullableJobsService(private val jobs: NullableJobs) {
     fun getHighlyPaidJobs(minimumSalary: Salary): List<Job> =
         jobs.findAll()?.filter { it.salary > minimumSalary } ?: listOf()
+
+    fun getJobsByCompanyMap(): Map<String, List<Job>> {
+        val jobs = jobs.findAll()
+        return jobs?.let {
+            it.groupBy { job -> job.company.name }
+        } ?: return mapOf()
+    }
 }
 
 data class Job(val company: Company, val role: Role, val salary: Salary)
