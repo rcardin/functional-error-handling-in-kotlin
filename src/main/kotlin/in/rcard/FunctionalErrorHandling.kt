@@ -35,7 +35,7 @@ class LiveNullableJobs : NullableJobs {
 
 class NullableJobsService(private val jobs: NullableJobs) {
     fun getHighlyPaidJobs(minimumSalary: Salary): List<Job> =
-        jobs.findAll().filter { it.salary > minimumSalary }
+        jobs.findAll()?.filter { it.salary > minimumSalary } ?: listOf()
 }
 
 data class Job(val company: Company, val role: Role, val salary: Salary)
