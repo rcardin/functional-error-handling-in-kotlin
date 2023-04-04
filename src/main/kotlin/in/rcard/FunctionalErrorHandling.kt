@@ -27,10 +27,13 @@ class JobsService(private val jobs: Jobs) {
 
 interface NullableJobs {
     fun findAll(): List<Job>?
+    fun findFirstByCompany(company: Company): Job?
 }
 
 class LiveNullableJobs : NullableJobs {
     override fun findAll(): List<Job>? = null
+    override fun findFirstByCompany(company: Company): Job? =
+        findAll()?.firstOrNull { it.company == company }
 }
 
 class NullableJobsService(private val jobs: NullableJobs) {
@@ -42,6 +45,11 @@ class NullableJobsService(private val jobs: NullableJobs) {
         return jobs?.let {
             it.groupBy { job -> job.company.name }
         } ?: return mapOf()
+    }
+
+    fun getHighlyPaidJobByCompany(company: Company, minimumSalary: Salary): Job? {
+        val job = jobs.findFirstByCompany(company)
+        return job?.takeIf { it.salary > minimumSalary }
     }
 }
 
