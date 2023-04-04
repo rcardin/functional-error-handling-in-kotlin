@@ -1,9 +1,16 @@
 package `in`.rcard
 
 fun main() {
+    val minimumSalary = Salary(100_000.00)
     val jobsService = NullableJobsService(LiveNullableJobs())
-    val highlyPaidJobs = jobsService.getHighlyPaidJobs(Salary(100_000.00))
-    println("Best jobs on the market are: $highlyPaidJobs")
+//    val highlyPaidJobs = jobsService.getHighlyPaidJobs(minimumSalary)
+//    println("Best jobs on the market are: $highlyPaidJobs")
+
+    val apple = Company("Apple")
+    val job =
+        jobsService.getHighlyPaidJobByCompany(apple, minimumSalary)
+    job?.apply { println("One of the best job at $apple on the market is: $this") }
+        ?: println("No job at $apple on the market is worth $minimumSalary")
 }
 
 interface Jobs {
