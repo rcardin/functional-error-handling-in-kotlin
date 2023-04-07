@@ -53,6 +53,13 @@ val googleJob: Option<Job> =
     ).toOption()
 val noGoogleJob: Option<Job> = null.toOption()
 
+fun printOptionJob(maybeJob: Option<Job>) {
+    when (maybeJob) {
+        is Some -> println("Job found: ${maybeJob.value}")
+        is None -> println("Job not found")
+    }
+}
+
 interface Jobs {
 
     fun findAll(): List<Job> = JOBS_DATABASE.values.toList()
