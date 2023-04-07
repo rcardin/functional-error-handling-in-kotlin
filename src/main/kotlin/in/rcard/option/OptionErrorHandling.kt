@@ -1,6 +1,8 @@
 package `in`.rcard.option
 
 import arrow.core.Option
+import arrow.core.toOption
+import `in`.rcard.domain.JOBS_DATABASE
 import `in`.rcard.domain.Job
 import `in`.rcard.domain.JobId
 
@@ -23,4 +25,11 @@ import `in`.rcard.domain.JobId
 
 interface Jobs {
     fun findById(id: JobId): Option<Job>
+}
+
+class LiveJobs : Jobs {
+    override fun findById(id: JobId): Option<Job> {
+        val job: Job? = JOBS_DATABASE[id]
+        return job.toOption()
+    }
 }
