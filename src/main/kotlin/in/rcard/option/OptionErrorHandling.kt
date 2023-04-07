@@ -62,11 +62,13 @@ fun printOptionJob(maybeJob: Option<Job>) {
 
 interface Jobs {
 
-    fun findAll(): List<Job> = JOBS_DATABASE.values.toList()
+    fun findAll(): List<Job>
     fun findById(id: JobId): Option<Job>
 }
 
 class LiveJobs : Jobs {
+    override fun findAll(): List<Job> = JOBS_DATABASE.values.toList()
+
     override fun findById(id: JobId): Option<Job> {
         val job: Job? = JOBS_DATABASE[id]
         return job.toOption()
@@ -76,12 +78,12 @@ class LiveJobs : Jobs {
 class JobsService(private val jobs: Jobs) {
 
     fun getSalaryGapWithMax(jobId: JobId): Option<Double> {
-        val job: Option<Job> = jobs.findById(jobId)
-        val maxSalary: Option<Salary> =
+        val maybeJob: Option<Job> = jobs.findById(jobId)
+        val maybeMaxSalary: Option<Salary> =
             jobs.findAll().maxBy { it.salary.value }.toOption().map { it.salary }
-        return job.flatMap { j ->
-            maxSalary.map { m ->
-                m.value - j.salary.value
+        return maybeJob.flatMap { job ->
+            maybeMaxSalary.map { maxSalary ->
+                maxSalary.value - job.salary.value
             }
         }
     }
