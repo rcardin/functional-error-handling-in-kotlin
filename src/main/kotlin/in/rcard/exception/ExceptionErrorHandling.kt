@@ -14,7 +14,7 @@ class LiveJobs : Jobs {
         if (maybeJob != null) {
             return maybeJob
         } else {
-            throw RuntimeException("Job not found")
+            throw NoSuchElementException("Job not found")
         }
     }
 }
