@@ -1,8 +1,14 @@
 package `in`.rcard
 
-import `in`.rcard.option.awsJob
-import `in`.rcard.option.printOptionJob
+import `in`.rcard.domain.JobId
+import `in`.rcard.exception.Jobs
+import `in`.rcard.exception.JobsService
+import `in`.rcard.exception.LiveJobs
 
 fun main() {
-    printOptionJob(awsJob)
+    val jobs: Jobs = LiveJobs()
+    val jobsService = JobsService(jobs)
+    val jobId: Long = 42
+    val salary = jobsService.retrieveSalary(JobId(jobId))
+    println("The salary of the job $jobId is $salary")
 }

@@ -18,3 +18,14 @@ class LiveJobs : Jobs {
         }
     }
 }
+
+class JobsService(private val jobs: Jobs) {
+    fun retrieveSalary(id: JobId): Double {
+        return try {
+            val job = jobs.findById(id)
+            job.salary.value
+        } catch (e: Exception) {
+            0.0
+        }
+    }
+}
