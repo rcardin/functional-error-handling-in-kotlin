@@ -9,5 +9,14 @@ interface Jobs {
 }
 
 class LiveJobs : Jobs {
-    override fun findById(id: JobId): Job? = JOBS_DATABASE[id]
+    override fun findById(id: JobId): Job? = try {
+        JOBS_DATABASE[id]
+    } catch (e: Exception) {
+        null
+    }
+}
+
+class JobsService(private val jobs: Jobs) {
+    fun retrieveSalary(id: JobId): Double =
+        jobs.findById(id)?.salary?.value ?: 0.0
 }
