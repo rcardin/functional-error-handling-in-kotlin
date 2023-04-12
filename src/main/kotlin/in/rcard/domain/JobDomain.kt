@@ -21,6 +21,10 @@ val JOBS_DATABASE: Map<JobId, Job> = mapOf(
     ),
 )
 
+class CurrencyConverter {
+    fun convertUsdToEur(amount: Double): Double = amount * 0.91
+}
+
 data class Job(val id: JobId, val company: Company, val role: Role, val salary: Salary)
 
 @JvmInline
