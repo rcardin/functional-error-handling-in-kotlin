@@ -11,6 +11,6 @@ fun main() {
     val currencyConverter = CurrencyConverter()
     val jobsService = JobsService(jobs, currencyConverter)
     val appleJobId = JobId(1)
-    val salary = jobsService.retrieveSalary(appleJobId)
-    println("The salary of the job $appleJobId is $salary")
+    val isAppleJob = jobsService.isAppleJob(appleJobId)
+    println("Q: Is the job with id $appleJobId an Apple job?\nA: $isAppleJob")
 }

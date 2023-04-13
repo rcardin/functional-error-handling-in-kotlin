@@ -23,4 +23,7 @@ class JobsService(private val jobs: Jobs, private val converter: CurrencyConvert
 
     fun retrieveSalaryInEur(id: JobId): Double =
         jobs.findById(id)?.let { converter.convertUsdToEur(it.salary.value) } ?: 0.0
+
+    fun isAppleJob(id: JobId): Boolean =
+        jobs.findById(id)?.takeIf { it.company.name == "Apple" } != null
 }
