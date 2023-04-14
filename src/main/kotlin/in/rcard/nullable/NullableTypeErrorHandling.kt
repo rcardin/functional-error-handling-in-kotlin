@@ -1,5 +1,7 @@
 package `in`.rcard.nullable
 
+import arrow.core.continuations.ensureNotNull
+import arrow.core.continuations.nullable
 import `in`.rcard.domain.CurrencyConverter
 import `in`.rcard.domain.JOBS_DATABASE
 import `in`.rcard.domain.Job
@@ -35,5 +37,11 @@ class JobsService(private val jobs: Jobs, private val converter: CurrencyConvert
                 job1.salary.value + job2.salary.value
             }
         }
+    }
+
+    suspend fun sumSalaries2(jobId1: JobId, jobId2: JobId): Double? = nullable {
+        val job1: Job = jobs.findById(jobId1).bind()
+        val job2: Job = ensureNotNull(jobs.findById(jobId2))
+        job1.salary.value + job2.salary.value
     }
 }
