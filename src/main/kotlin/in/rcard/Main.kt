@@ -10,7 +10,6 @@ fun main() {
     val jobs: Jobs = LiveJobs()
     val currencyConverter = CurrencyConverter()
     val jobsService = JobsService(jobs, currencyConverter)
-    val appleJobId = JobId(1)
-    val isAppleJob = jobsService.isAppleJob(appleJobId)
-    println("Q: Is the job with id $appleJobId an Apple job?\nA: $isAppleJob")
+    val salarySum = jobsService.sumSalaries(JobId(1), JobId(2))
+    println("The sum of the salaries is $salarySum")
 }

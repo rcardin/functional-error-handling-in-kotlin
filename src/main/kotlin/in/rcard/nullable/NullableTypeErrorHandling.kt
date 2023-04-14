@@ -26,4 +26,14 @@ class JobsService(private val jobs: Jobs, private val converter: CurrencyConvert
 
     fun isAppleJob(id: JobId): Boolean =
         jobs.findById(id)?.takeIf { it.company.name == "Apple" } != null
+
+    fun sumSalaries(jobId1: JobId, jobId2: JobId): Double? {
+        val maybeJob1: Job? = jobs.findById(jobId1)
+        val maybeJob2: Job? = jobs.findById(jobId2)
+        return maybeJob1?.let { job1 ->
+            maybeJob2?.let { job2 ->
+                job1.salary.value + job2.salary.value
+            }
+        }
+    }
 }
