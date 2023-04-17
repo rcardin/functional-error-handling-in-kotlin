@@ -39,7 +39,7 @@ class JobsService(private val jobs: Jobs, private val converter: CurrencyConvert
         }
     }
 
-    suspend fun sumSalaries2(jobId1: JobId, jobId2: JobId): Double? = nullable {
+    fun sumSalaries2(jobId1: JobId, jobId2: JobId): Double? = nullable.eager {
         val job1: Job = jobs.findById(jobId1).bind()
         val job2: Job = ensureNotNull(jobs.findById(jobId2))
         job1.salary.value + job2.salary.value
