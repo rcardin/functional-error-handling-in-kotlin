@@ -53,13 +53,6 @@ val googleJob: Option<Job> =
     ).toOption()
 val noGoogleJob: Option<Job> = null.toOption()
 
-fun printOptionJob(maybeJob: Option<Job>) {
-    when (maybeJob) {
-        is Some -> println("Job found: ${maybeJob.value}")
-        is None -> println("Job not found")
-    }
-}
-
 interface Jobs {
 
     fun findAll(): List<Job>
@@ -69,13 +62,22 @@ interface Jobs {
 class LiveJobs : Jobs {
     override fun findAll(): List<Job> = JOBS_DATABASE.values.toList()
 
-    override fun findById(id: JobId): Option<Job> {
-        val job: Job? = JOBS_DATABASE[id]
-        return job.toOption()
+    override fun findById(id: JobId): Option<Job> = try {
+        JOBS_DATABASE[id].toOption()
+    } catch (e: Exception) {
+        none()
     }
 }
 
 class JobsService(private val jobs: Jobs) {
+
+    fun printOptionJob(jobId: JobId) {
+        val maybeJob: Option<Job> = jobs.findById(jobId)
+        when (maybeJob) {
+            is Some -> println("Job found: ${maybeJob.value}")
+            is None -> println("Job not found for id $jobId")
+        }
+    }
 
     fun getSalaryGapWithMax(jobId: JobId): Option<Double> {
         val maybeJob: Option<Job> = jobs.findById(jobId)
