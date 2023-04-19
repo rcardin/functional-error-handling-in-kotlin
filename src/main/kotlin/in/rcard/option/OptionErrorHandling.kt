@@ -95,10 +95,4 @@ class JobsService(private val jobs: Jobs) {
         val maxSalaryJob: Job = jobs.findAll().maxBy { it.salary.value }.toOption().bind()
         maxSalaryJob.salary.value - job.salary.value
     }
-
-    suspend fun getSalaryGapWithMax3(jobId: JobId): Option<Double> = option {
-        val job: Job = jobs.findById(jobId).bind()
-        val maxSalaryJob: Job = jobs.findAll().maxBy { it.salary.value }.toOption().bind()
-        maxSalaryJob.salary.value - job.salary.value
-    }
 }
