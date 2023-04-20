@@ -3,6 +3,7 @@ package `in`.rcard.option
 import arrow.core.None
 import arrow.core.Option
 import arrow.core.Some
+import arrow.core.continuations.ensureNotNull
 import arrow.core.continuations.option
 import arrow.core.none
 import arrow.core.some
@@ -90,9 +91,17 @@ class JobsService(private val jobs: Jobs) {
         }
     }
 
-    suspend fun getSalaryGapWithMax2(jobId: JobId): Option<Double> = option {
+    fun getSalaryGapWithMax2(jobId: JobId): Option<Double> = option.eager {
         val job: Job = jobs.findById(jobId).bind()
         val maxSalaryJob: Job = jobs.findAll().maxBy { it.salary.value }.toOption().bind()
+        maxSalaryJob.salary.value - job.salary.value
+    }
+
+    fun getSalaryGapWithMax3(jobId: JobId): Option<Double> = option.eager {
+        val job: Job = jobs.findById(jobId).bind()
+        val maxSalaryJob: Job = ensureNotNull(
+            jobs.findAll().maxBy { it.salary.value },
+        )
         maxSalaryJob.salary.value - job.salary.value
     }
 }
