@@ -4,6 +4,7 @@ import arrow.core.None
 import arrow.core.Option
 import arrow.core.Some
 import arrow.core.continuations.ensureNotNull
+import arrow.core.continuations.nullable
 import arrow.core.continuations.option
 import arrow.core.none
 import arrow.core.some
@@ -98,6 +99,14 @@ class JobsService(private val jobs: Jobs) {
     }
 
     fun getSalaryGapWithMax3(jobId: JobId): Option<Double> = option.eager {
+        val job: Job = jobs.findById(jobId).bind()
+        val maxSalaryJob: Job = ensureNotNull(
+            jobs.findAll().maxBy { it.salary.value },
+        )
+        maxSalaryJob.salary.value - job.salary.value
+    }
+
+    fun getSalaryGapWithMax4(jobId: JobId): Double? = nullable.eager {
         val job: Job = jobs.findById(jobId).bind()
         val maxSalaryJob: Job = ensureNotNull(
             jobs.findAll().maxBy { it.salary.value },
