@@ -93,8 +93,12 @@ class JobsService(private val jobs: Jobs) {
     }
 
     fun getSalaryGapWithMax2(jobId: JobId): Option<Double> = option.eager {
+        println("Searching for the job with id $jobId")
         val job: Job = jobs.findById(jobId).bind()
+        println("Job found: $job")
+        println("Searching for the job with the max salary")
         val maxSalaryJob: Job = jobs.findAll().maxBy { it.salary.value }.toOption().bind()
+        println("Job found: $maxSalaryJob")
         maxSalaryJob.salary.value - job.salary.value
     }
 
