@@ -1,14 +1,15 @@
 package `in`.rcard
 
+import `in`.rcard.domain.CurrencyConverter
 import `in`.rcard.domain.JobId
-import `in`.rcard.option.Jobs
-import `in`.rcard.option.JobsService
-import `in`.rcard.option.LiveJobs
+import `in`.rcard.nullable.Jobs
+import `in`.rcard.nullable.JobsService
+import `in`.rcard.nullable.LiveJobs
 
 fun main() {
     val jobs: Jobs = LiveJobs()
-    val jobsService = JobsService(jobs)
-    val fakeJobId = JobId(42)
-    val salaryGap: Double? = jobsService.getSalaryGapWithMax4(fakeJobId)
-    println("The salary gap between $fakeJobId and the max salary is ${salaryGap ?: 0.0}")
+    val currencyConverter = CurrencyConverter()
+    val jobsService = JobsService(jobs, currencyConverter)
+    val salarySum = jobsService.sumSalaries2(JobId(42), JobId(2)) ?: 0.0
+    println("The sum of the salaries using 'sumSalaries' is $salarySum")
 }

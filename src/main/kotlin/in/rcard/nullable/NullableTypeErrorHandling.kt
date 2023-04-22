@@ -40,8 +40,12 @@ class JobsService(private val jobs: Jobs, private val converter: CurrencyConvert
     }
 
     fun sumSalaries2(jobId1: JobId, jobId2: JobId): Double? = nullable.eager {
+        println("Searching for the job with id $jobId1")
         val job1: Job = jobs.findById(jobId1).bind()
+        println("Job found: $job1")
+        println("Searching for the job with id $jobId2")
         val job2: Job = ensureNotNull(jobs.findById(jobId2))
+        println("Job found: $job2")
         job1.salary.value + job2.salary.value
     }
 }
