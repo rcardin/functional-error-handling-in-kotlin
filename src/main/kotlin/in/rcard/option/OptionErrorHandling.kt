@@ -107,10 +107,14 @@ class JobsService(private val jobs: Jobs) {
     }
 
     fun getSalaryGapWithMax4(jobId: JobId): Double? = nullable.eager {
+        println("Searching for the job with id $jobId")
         val job: Job = jobs.findById(jobId).bind()
+        println("Job found: $job")
+        println("Searching for the job with the max salary")
         val maxSalaryJob: Job = ensureNotNull(
             jobs.findAll().maxBy { it.salary.value },
         )
+        println("Job found: $maxSalaryJob")
         maxSalaryJob.salary.value - job.salary.value
     }
 }
