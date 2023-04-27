@@ -1,5 +1,7 @@
 package `in`.rcard.domain
 
+import arrow.core.continuations.nullable
+
 val JOBS_DATABASE: Map<JobId, Job> = mapOf(
     JobId(1) to Job(
         JobId(1),
@@ -23,6 +25,10 @@ val JOBS_DATABASE: Map<JobId, Job> = mapOf(
 
 class CurrencyConverter {
     fun convertUsdToEur(amount: Double): Double = amount * 0.91
+    fun convertUsdToEurOrNull(amount: Double): Double? = nullable.eager {
+        ensure(amount >= 0.0)
+        amount * 0.91
+    }
 }
 
 data class Job(val id: JobId, val company: Company, val role: Role, val salary: Salary)
