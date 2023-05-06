@@ -6,9 +6,13 @@ import `in`.rcard.domain.Job
 import `in`.rcard.domain.JobId
 import `in`.rcard.domain.Role
 import `in`.rcard.domain.Salary
+import java.lang.IllegalArgumentException
 
 fun main() {
-    JobService(LiveJobs()).printOptionJob(JobId(1))
+    val currencyConverter = CurrencyConverter()
+    val jobs = LiveJobs()
+    val maybeSalary = JobService(jobs, currencyConverter).getSalaryInEur(JobId(42))
+    println(maybeSalary)
 }
 
 val appleJob: Result<Job> = Result.success(
@@ -19,6 +23,8 @@ val appleJob: Result<Job> = Result.success(
         Salary(70_000.00),
     ),
 )
+
+val appleJobSalary: Result<Salary> = appleJob.map { it.salary }
 
 val notFoundJob: Result<Job> = Result.failure(NoSuchElementException("Job not found"))
 
@@ -38,7 +44,17 @@ class LiveJobs : Jobs {
     }
 }
 
-class JobService(private val jobs: Jobs) {
+class CurrencyConverter {
+    @Throws(IllegalArgumentException::class)
+    fun convertUsdToEur(amount: Double?): Double =
+        if (amount != null && amount >= 0.0) {
+            amount * 0.91
+        } else {
+            throw IllegalArgumentException("Amount must be positive")
+        }
+}
+
+class JobService(private val jobs: Jobs, private val currencyConverter: CurrencyConverter) {
 
     fun printOptionJob(jobId: JobId) {
         val maybeJob: Result<Job?> = jobs.findById(jobId)
@@ -48,4 +64,9 @@ class JobService(private val jobs: Jobs) {
             println("Something went wrong: ${maybeJob.exceptionOrNull()}")
         }
     }
+
+    fun getSalaryInEur(jobId: JobId): Result<Double> =
+        jobs.findById(jobId)
+            .map { it?.salary }
+            .mapCatching { currencyConverter.convertUsdToEur(it?.value) }
 }
