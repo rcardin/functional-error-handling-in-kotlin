@@ -1,14 +1,11 @@
 package `in`.rcard.result
 
-import arrow.core.Option
-import arrow.core.toOption
 import `in`.rcard.domain.Company
 import `in`.rcard.domain.JOBS_DATABASE
 import `in`.rcard.domain.Job
 import `in`.rcard.domain.JobId
 import `in`.rcard.domain.Role
 import `in`.rcard.domain.Salary
-import java.lang.IllegalArgumentException
 
 fun main() {
     val currencyConverter = CurrencyConverter()
