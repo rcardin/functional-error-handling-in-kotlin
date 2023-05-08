@@ -11,8 +11,15 @@ import java.lang.IllegalArgumentException
 fun main() {
     val currencyConverter = CurrencyConverter()
     val jobs = LiveJobs()
-    val maybeSalary = JobService(jobs, currencyConverter).getSalaryInEur(JobId(42))
-    println(maybeSalary)
+    val maybeSalary: Result<Double> = JobService(jobs, currencyConverter).getSalaryInEur(JobId(42))
+    val recovered = maybeSalary.recover {
+        when (it) {
+            is IllegalArgumentException -> println("The amount must be positive")
+            else -> println("An error occurred ${it.message}")
+        }
+        0.0
+    }
+    println(recovered)
 }
 
 val appleJob: Result<Job> = Result.success(
