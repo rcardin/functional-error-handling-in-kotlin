@@ -1,5 +1,7 @@
 package `in`.rcard.result
 
+import arrow.core.Option
+import arrow.core.toOption
 import `in`.rcard.domain.Company
 import `in`.rcard.domain.JOBS_DATABASE
 import `in`.rcard.domain.Job
@@ -11,15 +13,16 @@ import java.lang.IllegalArgumentException
 fun main() {
     val currencyConverter = CurrencyConverter()
     val jobs = LiveJobs()
-    val maybeSalary: Result<Double> = JobService(jobs, currencyConverter).getSalaryInEur(JobId(42))
-    val recovered = maybeSalary.recover {
+    val notFoundJobId = JobId(42)
+    val maybeSalary: Result<Double> = JobService(jobs, currencyConverter).getSalaryInEur(notFoundJobId)
+    maybeSalary.fold({
+        println("The salary of jobId $notFoundJobId is $it")
+    }, {
         when (it) {
             is IllegalArgumentException -> println("The amount must be positive")
             else -> println("An error occurred ${it.message}")
         }
-        0.0
-    }
-    println(recovered)
+    })
 }
 
 val appleJob: Result<Job> = Result.success(
@@ -41,10 +44,12 @@ fun <T> T.toResult(): Result<T> =
 
 interface Jobs {
 
+    fun findAll(): Result<List<Job>>
     fun findById(id: JobId): Result<Job?>
 }
 
 class LiveJobs : Jobs {
+    override fun findAll(): Result<List<Job>> = Result.success(JOBS_DATABASE.values.toList())
 
     override fun findById(id: JobId): Result<Job?> = id.runCatching {
         JOBS_DATABASE[this]
@@ -76,4 +81,15 @@ class JobService(private val jobs: Jobs, private val currencyConverter: Currency
         jobs.findById(jobId)
             .map { it?.salary }
             .mapCatching { currencyConverter.convertUsdToEur(it?.value) }
+
+//    fun getSalaryGapWithMax(jobId: JobId): Option<Double> {
+//        val maybeJob: Result<Job?> = jobs.findById(jobId)
+//        val maybeMaxSalary: Result<Salary> =
+//            jobs.findAll().map { jobsList-> jobsList.maxBy { it.salary.value }
+//        return maybeJob.flatMap { job ->
+//            maybeMaxSalary.map { maxSalary ->
+//                maxSalary.value - job.salary.value
+//            }
+//        }
+//    }
 }
