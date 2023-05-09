@@ -79,14 +79,13 @@ class JobService(private val jobs: Jobs, private val currencyConverter: Currency
             .map { it?.salary }
             .mapCatching { currencyConverter.convertUsdToEur(it?.value) }
 
-//    fun getSalaryGapWithMax(jobId: JobId): Option<Double> {
-//        val maybeJob: Result<Job?> = jobs.findById(jobId)
-//        val maybeMaxSalary: Result<Salary> =
-//            jobs.findAll().map { jobsList-> jobsList.maxBy { it.salary.value }
-//        return maybeJob.flatMap { job ->
-//            maybeMaxSalary.map { maxSalary ->
-//                maxSalary.value - job.salary.value
-//            }
-//        }
-//    }
+    fun getSalaryGapWithMax(jobId: JobId): Result<Double> = runCatching {
+        val maybeJob: Job? = jobs.findById(jobId).getOrThrow()
+        val jobSalary = maybeJob?.salary ?: throw NoSuchElementException("Job not found")
+        val maxSalary: Salary =
+            jobs.findAll().map { jobsList ->
+                jobsList.maxBy { it.salary.value }.salary
+            }.getOrThrow()
+        maxSalary.value - jobSalary.value
+    }
 }
