@@ -82,10 +82,16 @@ class JobService(private val jobs: Jobs, private val currencyConverter: Currency
     fun getSalaryGapWithMax(jobId: JobId): Result<Double> = runCatching {
         val maybeJob: Job? = jobs.findById(jobId).getOrThrow()
         val jobSalary = maybeJob?.salary ?: throw NoSuchElementException("Job not found")
-        val maxSalary: Salary =
-            jobs.findAll().map { jobsList ->
-                jobsList.maxBy { it.salary.value }.salary
-            }.getOrThrow()
+        val jobList = jobs.findAll().getOrThrow()
+        val maxSalary: Salary = jobList.maxSalary().getOrThrow()
         maxSalary.value - jobSalary.value
+    }
+}
+
+internal fun List<Job>.maxSalary(): Result<Salary> = runCatching {
+    if (this.isEmpty()) {
+        throw NoSuchElementException("No job present")
+    } else {
+        this.maxBy { it.salary.value }.salary
     }
 }
