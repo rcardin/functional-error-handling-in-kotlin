@@ -1,5 +1,7 @@
 package `in`.rcard.result
 
+import arrow.core.continuations.ensureNotNull
+import arrow.core.continuations.result
 import arrow.core.flatMap
 import `in`.rcard.domain.Company
 import `in`.rcard.domain.JOBS_DATABASE
@@ -97,6 +99,15 @@ class JobService(private val jobs: Jobs, private val currencyConverter: Currency
                 }
             }
         }
+
+    fun getSalaryGapWithMax3(jobId: JobId): Result<Double> = result.eager {
+        val maybeJob: Job? = jobs.findById(jobId).bind()
+        val job = ensureNotNull(maybeJob) { NoSuchElementException("Job not found") }
+        val jobSalary = maybeJob.salary
+        val jobList = jobs.findAll().bind()
+        val maxSalary: Salary = jobList.maxSalary().bind()
+        maxSalary.value - jobSalary.value
+    }
 }
 
 internal fun List<Job>.maxSalary(): Result<Salary> = runCatching {
