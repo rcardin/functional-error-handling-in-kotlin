@@ -101,11 +101,17 @@ class JobService(private val jobs: Jobs, private val currencyConverter: Currency
         }
 
     fun getSalaryGapWithMax3(jobId: JobId): Result<Double> = result.eager {
+        println("Searching for the job with id $jobId")
         val maybeJob: Job? = jobs.findById(jobId).bind()
-        val job = ensureNotNull(maybeJob) { NoSuchElementException("Job not found") }
+        ensureNotNull(maybeJob) { NoSuchElementException("Job not found") }
         val jobSalary = maybeJob.salary
+        println("Job found: $maybeJob")
+        println("Getting all the available jobs")
         val jobList = jobs.findAll().bind()
+        println("Jobs found: $jobList")
+        println("Searching for max salary")
         val maxSalary: Salary = jobList.maxSalary().bind()
+        println("Max salary found: $maxSalary")
         maxSalary.value - jobSalary.value
     }
 }
