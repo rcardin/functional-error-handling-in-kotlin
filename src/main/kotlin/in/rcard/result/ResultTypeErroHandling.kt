@@ -9,20 +9,14 @@ import `in`.rcard.domain.Job
 import `in`.rcard.domain.JobId
 import `in`.rcard.domain.Role
 import `in`.rcard.domain.Salary
+import java.lang.RuntimeException
 
 fun main() {
-    val currencyConverter = CurrencyConverter()
-    val jobs = LiveJobs()
-    val notFoundJobId = JobId(42)
-    val maybeSalary: Result<Double> = JobService(jobs, currencyConverter).getSalaryInEur(notFoundJobId)
-    maybeSalary.fold({
-        println("The salary of jobId $notFoundJobId is $it")
-    }, {
-        when (it) {
-            is IllegalArgumentException -> println("The amount must be positive")
-            else -> println("An error occurred ${it.message}")
-        }
-    })
+    result.eager {
+        runCatching<Int> {
+            throw RuntimeException("Boom!")
+        }.bind()
+    }
 }
 
 val appleJob: Result<Job> = Result.success(
