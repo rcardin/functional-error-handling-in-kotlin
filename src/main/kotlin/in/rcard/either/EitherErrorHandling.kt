@@ -19,3 +19,18 @@ val jobNotFound: Either<JobError, JobNotFound> = Left(JobNotFound(appleJobId))
 
 val anotherAppleJob = JOBS_DATABASE[appleJobId]!!.right()
 val anotherJobNotFound: Either<JobError, JobNotFound> = JobNotFound(appleJobId).left()
+
+interface Jobs {
+
+    fun findById(id: JobId): Either<JobError, Job>
+}
+
+class LiveJobs : Jobs {
+
+    override fun findById(id: JobId): Either<JobError, Job> =
+        try {
+            JOBS_DATABASE[id]?.right() ?: JobNotFound(id).left()
+        } catch (e: Exception) {
+            GenericError(e.message ?: "Unknown error").left()
+        }
+}
