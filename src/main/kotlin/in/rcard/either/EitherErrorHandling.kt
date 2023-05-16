@@ -1,8 +1,10 @@
 package `in`.rcard.either
 
 import arrow.core.Either
+import arrow.core.Either.Companion.catch
 import arrow.core.Either.Left
 import arrow.core.Either.Right
+import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
 import `in`.rcard.domain.JOBS_DATABASE
@@ -26,11 +28,8 @@ interface Jobs {
 }
 
 class LiveJobs : Jobs {
-
-    override fun findById(id: JobId): Either<JobError, Job> =
-        try {
-            JOBS_DATABASE[id]?.right() ?: JobNotFound(id).left()
-        } catch (e: Exception) {
-            GenericError(e.message ?: "Unknown error").left()
-        }
+    override fun findById(id: JobId): Either<JobError, Job> = catch {
+        JOBS_DATABASE[id]
+    }.mapLeft { GenericError(it.message ?: "Unknown error") }
+        .flatMap { maybeJob -> maybeJob?.right() ?: JobNotFound(id).left() }
 }
