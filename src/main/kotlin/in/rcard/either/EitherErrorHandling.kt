@@ -25,6 +25,11 @@ val anotherJobNotFound: Either<JobError, Job> = JobNotFound(appleJobId).left()
 
 val jobSalary: Salary = jobNotFound.fold({ Salary(0.0) }, { it.salary })
 
+fun printSalary(maybeJob: Either<JobError, Job>) = when (maybeJob) {
+    is Right -> println("Job salary is ${maybeJob.value.salary}")
+    is Left -> println("No job found")
+}
+
 interface Jobs {
 
     fun findById(id: JobId): Either<JobError, Job>
