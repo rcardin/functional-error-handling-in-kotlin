@@ -46,3 +46,5 @@ value class Role(val name: String)
 value class Salary(val value: Double) {
     operator fun compareTo(other: Salary): Int = value.compareTo(other.value)
 }
+
+fun Double.salary(): Salary = Salary(this)
