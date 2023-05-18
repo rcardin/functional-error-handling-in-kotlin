@@ -4,7 +4,9 @@ import arrow.core.Either
 import arrow.core.Either.Companion.catch
 import arrow.core.Either.Left
 import arrow.core.Either.Right
+import arrow.core.Option
 import arrow.core.flatMap
+import arrow.core.getOrElse
 import arrow.core.left
 import arrow.core.right
 import `in`.rcard.domain.JOBS_DATABASE
@@ -24,6 +26,17 @@ val anotherAppleJob = JOBS_DATABASE[appleJobId]!!.right()
 val anotherJobNotFound: Either<JobError, Job> = JobNotFound(appleJobId).left()
 
 val jobSalary: Salary = jobNotFound.fold({ Salary(0.0) }, { it.salary })
+
+val appleJobOrNull: Job? = appleJob.getOrNull()
+val maybeAppleJob: Option<Job> = appleJob.getOrNone()
+
+val jobCompany: String = appleJob.map { it.company.name }.getOrElse { "Unknown company" }
+val jobCompany2: String = appleJob.map { it.company.name }.getOrElse { jobError ->
+    when (jobError) {
+        is JobNotFound -> "Job not found"
+        is GenericError -> "Generic error"
+    }
+}
 
 fun printSalary(maybeJob: Either<JobError, Job>) = when (maybeJob) {
     is Right -> println("Job salary is ${maybeJob.value.salary}")
