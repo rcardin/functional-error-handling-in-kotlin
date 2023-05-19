@@ -26,6 +26,7 @@ val anotherAppleJob = JOBS_DATABASE[appleJobId]!!.right()
 val anotherJobNotFound: Either<JobError, Job> = JobNotFound(appleJobId).left()
 
 val jobSalary: Salary = jobNotFound.fold({ Salary(0.0) }, { it.salary })
+val jobSalary2: Salary = jobNotFound.map { it.salary }.getOrElse { Salary(0.0) }
 
 val appleJobOrNull: Job? = appleJob.getOrNull()
 val maybeAppleJob: Option<Job> = appleJob.getOrNone()
