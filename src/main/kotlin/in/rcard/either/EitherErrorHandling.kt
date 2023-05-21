@@ -47,6 +47,7 @@ fun printSalary(maybeJob: Either<JobError, Job>) = when (maybeJob) {
 interface Jobs {
 
     fun findById(id: JobId): Either<JobError, Job>
+    fun findAll(): Either<JobError, List<Job>>
 }
 
 class LiveJobs : Jobs {
@@ -54,4 +55,7 @@ class LiveJobs : Jobs {
         JOBS_DATABASE[id]
     }.mapLeft { GenericError(it.message ?: "Unknown error") }
         .flatMap { maybeJob -> maybeJob?.right() ?: JobNotFound(id).left() }
+
+    override fun findAll(): Either<JobError, List<Job>> =
+        JOBS_DATABASE.values.toList().right()
 }
