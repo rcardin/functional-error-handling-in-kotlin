@@ -59,3 +59,21 @@ class LiveJobs : Jobs {
     override fun findAll(): Either<JobError, List<Job>> =
         JOBS_DATABASE.values.toList().right()
 }
+
+class JobsService(private val jobs: Jobs) {
+    fun getSalaryGapWithMax(jobId: JobId): Either<JobError, Double> =
+        jobs.findById(jobId).flatMap { job ->
+            jobs.findAll().flatMap { jobs ->
+                jobs.maxSalary().map { maxSalary ->
+                    (maxSalary.value - job.salary.value)
+                }
+            }
+        }
+
+    private fun List<Job>.maxSalary(): Either<GenericError, Salary> =
+        if (this.isEmpty()) {
+            GenericError("No jobs found").left()
+        } else {
+            this.maxBy { it.salary.value }.salary.right()
+        }
+}
