@@ -5,6 +5,7 @@ import arrow.core.Either.Companion.catch
 import arrow.core.Either.Left
 import arrow.core.Either.Right
 import arrow.core.Option
+import arrow.core.continuations.either
 import arrow.core.flatMap
 import arrow.core.getOrElse
 import arrow.core.left
@@ -69,6 +70,10 @@ class JobsService(private val jobs: Jobs) {
                 }
             }
         }
+
+    fun getSalaryGapWithMax2(jobId: JobId): Either<JobError, Double> = either.eager {
+        TODO()
+    }
 
     private fun List<Job>.maxSalary(): Either<GenericError, Salary> =
         if (this.isEmpty()) {
