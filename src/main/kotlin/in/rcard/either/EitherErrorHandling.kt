@@ -72,7 +72,10 @@ class JobsService(private val jobs: Jobs) {
         }
 
     fun getSalaryGapWithMax2(jobId: JobId): Either<JobError, Double> = either.eager {
-        TODO()
+        val job = jobs.findById(jobId).bind()
+        val jobsList = jobs.findAll().bind()
+        val maxSalary = jobsList.maxSalary().bind()
+        maxSalary.value - job.salary.value
     }
 
     private fun List<Job>.maxSalary(): Either<GenericError, Salary> =
