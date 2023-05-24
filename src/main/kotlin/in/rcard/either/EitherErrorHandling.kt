@@ -6,6 +6,7 @@ import arrow.core.Either.Left
 import arrow.core.Either.Right
 import arrow.core.Option
 import arrow.core.continuations.either
+import arrow.core.continuations.ensureNotNull
 import arrow.core.flatMap
 import arrow.core.getOrElse
 import arrow.core.left
@@ -18,6 +19,7 @@ import `in`.rcard.domain.Salary
 sealed interface JobError
 data class JobNotFound(val jobId: JobId) : JobError
 data class GenericError(val cause: String) : JobError
+object NegativeAmount : JobError
 
 val appleJobId = JobId(1)
 val appleJob: Either<JobError, Job> = Right(JOBS_DATABASE[appleJobId]!!)
@@ -26,8 +28,8 @@ val jobNotFound: Either<JobError, Job> = Left(JobNotFound(appleJobId))
 val anotherAppleJob = JOBS_DATABASE[appleJobId]!!.right()
 val anotherJobNotFound: Either<JobError, Job> = JobNotFound(appleJobId).left()
 
-val jobSalary: Salary = jobNotFound.fold({ Salary(0.0) }, { it.salary })
-val jobSalary2: Salary = jobNotFound.map { it.salary }.getOrElse { Salary(0.0) }
+// val jobSalary: Salary = jobNotFound.fold({ Salary(0.0) }, { it.salary })
+// val jobSalary2: Salary = jobNotFound.map { it.salary }.getOrElse { Salary(0.0) }
 
 val appleJobOrNull: Job? = appleJob.getOrNull()
 val maybeAppleJob: Option<Job> = appleJob.getOrNone()
@@ -37,6 +39,7 @@ val jobCompany2: String = appleJob.map { it.company.name }.getOrElse { jobError 
     when (jobError) {
         is JobNotFound -> "Job not found"
         is GenericError -> "Generic error"
+        is NegativeAmount -> "Negative amount"
     }
 }
 
@@ -78,10 +81,19 @@ class JobsService(private val jobs: Jobs) {
         maxSalary.value - job.salary.value
     }
 
+    fun getSalaryGapWithMax3(jobId: JobId): Either<JobError, Double> = either.eager {
+        val job = jobs.findById(jobId).bind()
+        val jobsList = jobs.findAll().bind()
+        val maxSalary = ensureNotNull(jobsList.maxSalary2()) { GenericError("No jobs found") }
+        maxSalary.value - job.salary.value
+    }
+
     private fun List<Job>.maxSalary(): Either<GenericError, Salary> =
         if (this.isEmpty()) {
             GenericError("No jobs found").left()
         } else {
             this.maxBy { it.salary.value }.salary.right()
         }
+
+    private fun List<Job>.maxSalary2(): Salary? = this.maxBy { it.salary.value }.salary
 }
