@@ -21,6 +21,18 @@ data class JobNotFound(val jobId: JobId) : JobError
 data class GenericError(val cause: String) : JobError
 object NegativeAmount : JobError
 
+object EitherJobDomain {
+    @JvmInline
+    value class Salary private constructor(val value: Double) {
+        companion object {
+            operator fun invoke(value: Double): Either<JobError, Salary> = either.eager {
+                ensure(value >= 0.0) { NegativeAmount }
+                Salary(value)
+            }
+        }
+    }
+}
+
 val appleJobId = JobId(1)
 val appleJob: Either<JobError, Job> = Right(JOBS_DATABASE[appleJobId]!!)
 val jobNotFound: Either<JobError, Job> = Left(JobNotFound(appleJobId))
@@ -28,8 +40,8 @@ val jobNotFound: Either<JobError, Job> = Left(JobNotFound(appleJobId))
 val anotherAppleJob = JOBS_DATABASE[appleJobId]!!.right()
 val anotherJobNotFound: Either<JobError, Job> = JobNotFound(appleJobId).left()
 
-// val jobSalary: Salary = jobNotFound.fold({ Salary(0.0) }, { it.salary })
-// val jobSalary2: Salary = jobNotFound.map { it.salary }.getOrElse { Salary(0.0) }
+val jobSalary: Salary = jobNotFound.fold({ Salary(0.0) }, { it.salary })
+val jobSalary2: Salary = jobNotFound.map { it.salary }.getOrElse { Salary(0.0) }
 
 val appleJobOrNull: Job? = appleJob.getOrNull()
 val maybeAppleJob: Option<Job> = appleJob.getOrNone()
