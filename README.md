@@ -4,4 +4,6 @@
 # functional-error-handling-in-kotlin
 Day-by-day examples of how we can handle errors in Kotlin using functional programming.
 
-The repository contains the code associated with the article [Functional Error Handling in Kotlin, Part 1: Absent values, Nullables, Options ](https://github.com/rcardin/functional-error-handling-in-kotlin), published on the RockTheJvm platform.
+The repository contains the code associated with the series of articles published on the RockTheJvm platform.:
+* [Functional Error Handling in Kotlin, Part 1: Absent values, Nullables, Options ](https://github.com/rcardin/functional-error-handling-in-kotlin)
+* [Functional Error Handling in Kotlin, Part 2: Result and Either](https://blog.rockthejvm.com/functional-error-handling-in-kotlin-part-2/)
