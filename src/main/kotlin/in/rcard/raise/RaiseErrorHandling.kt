@@ -11,3 +11,7 @@ fun appleJob(): Job = JOBS_DATABASE[JobId(1)]!!
 
 context(Raise<JobNotFound>)
 fun jobNotFound(): Job = raise(JobNotFound(JobId(42)))
+
+val retrieveCompany: Job.() -> String = { company.name }
+
+val appleCompany = retrieveCompany(JOBS_DATABASE[JobId(1)]!!)
