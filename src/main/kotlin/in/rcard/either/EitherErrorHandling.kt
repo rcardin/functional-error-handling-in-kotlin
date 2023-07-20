@@ -19,7 +19,7 @@ import `in`.rcard.domain.Salary
 sealed interface JobError
 data class JobNotFound(val jobId: JobId) : JobError
 data class GenericError(val cause: String) : JobError
-object NegativeAmount : JobError
+data object NegativeAmount : JobError
 
 object EitherJobDomain {
     @JvmInline
