@@ -1,7 +1,10 @@
 package `in`.rcard.raise
 
+import arrow.core.Either
 import arrow.core.raise.Raise
+import arrow.core.raise.either
 import arrow.core.raise.fold
+import `in`.rcard.domain.Company
 import `in`.rcard.domain.JOBS_DATABASE
 import `in`.rcard.domain.Job
 import `in`.rcard.domain.JobId
@@ -46,6 +49,15 @@ class JobsService(private val jobs: Jobs) {
             println("Job salary for job with id ${jobId.value} is ${job.salary}")
         },
     )
+
+    fun company(jobId: JobId): Either<JobError, Company> = either {
+        jobs.findById(jobId)
+    }.map { job ->
+        job.company
+    }
+
+    context (Raise<JobError>)
+    fun companyWithRaise(jobId: JobId): Company = company(jobId).bind()
 }
 
 interface Jobs {
