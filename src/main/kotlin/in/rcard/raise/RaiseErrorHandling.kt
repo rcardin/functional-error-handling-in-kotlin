@@ -2,6 +2,7 @@ package `in`.rcard.raise
 
 import arrow.core.Either
 import arrow.core.raise.Raise
+import arrow.core.raise.catch
 import arrow.core.raise.either
 import arrow.core.raise.fold
 import `in`.rcard.domain.Company
@@ -35,7 +36,7 @@ val consoleLogger = object : Logger {
     }
 }
 
-class JobsService(private val jobs: Jobs) {
+class JobsService(private val jobs: Jobs, private val converter: CurrencyConverter) {
 
     fun printSalary(jobId: JobId) = fold(
         block = { jobs.findById(jobId) },
@@ -58,6 +59,19 @@ class JobsService(private val jobs: Jobs) {
 
     context (Raise<JobError>)
     fun companyWithRaise(jobId: JobId): Company = company(jobId).bind()
+
+    context (Raise<JobError>, Raise<Throwable>)
+    fun salaryInEur(jobId: JobId): Double {
+        val job = jobs.findById(jobId)
+        return catch(
+            {
+                converter.convertUsdToEur(job.salary.value)
+            },
+            {
+                raise(it)
+            },
+        )
+    }
 }
 
 interface Jobs {
@@ -72,4 +86,26 @@ class LiveJobs : Jobs {
     override fun findById(id: JobId): Job {
         return JOBS_DATABASE[id] ?: raise(JobNotFound(id))
     }
+}
+
+context (Raise<Throwable>)
+fun convertUsdToEur(amount: Double?, converter: CurrencyConverter) {
+    converter.convertUsdToEur(amount)
+}
+
+class CurrencyConverter {
+    @Throws(IllegalArgumentException::class)
+    fun convertUsdToEur(amount: Double?): Double =
+        if (amount == null || amount < 0.0) {
+            throw IllegalArgumentException("Amount must be positive")
+        } else {
+            amount * 0.91
+        }
+}
+
+class RaiseCurrencyConverter(private val currencyConverter: CurrencyConverter) {
+
+    context (Raise<Throwable>)
+    fun convertUsdToEur(amount: Double?): Double =
+        currencyConverter.convertUsdToEur(amount)
 }
