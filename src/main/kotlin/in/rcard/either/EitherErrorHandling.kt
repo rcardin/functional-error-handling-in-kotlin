@@ -19,14 +19,14 @@ import `in`.rcard.domain.Salary
 sealed interface JobError
 data class JobNotFound(val jobId: JobId) : JobError
 data class GenericError(val cause: String) : JobError
-data object NegativeAmount : JobError
+data object NegativeSalary : JobError
 
 object EitherJobDomain {
     @JvmInline
     value class Salary private constructor(val value: Double) {
         companion object {
             operator fun invoke(value: Double): Either<JobError, Salary> = either.eager {
-                ensure(value >= 0.0) { NegativeAmount }
+                ensure(value >= 0.0) { NegativeSalary }
                 Salary(value)
             }
         }
@@ -51,7 +51,7 @@ val jobCompany2: String = appleJob.map { it.company.name }.getOrElse { jobError 
     when (jobError) {
         is JobNotFound -> "Job not found"
         is GenericError -> "Generic error"
-        is NegativeAmount -> "Negative amount"
+        is NegativeSalary -> "Negative amount"
     }
 }
 

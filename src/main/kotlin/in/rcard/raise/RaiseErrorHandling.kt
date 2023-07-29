@@ -11,6 +11,7 @@ import `in`.rcard.domain.Job
 import `in`.rcard.domain.JobId
 import `in`.rcard.either.JobError
 import `in`.rcard.either.JobNotFound
+import `in`.rcard.either.NegativeSalary
 
 context(Raise<JobNotFound>)
 fun appleJob(): Job = JOBS_DATABASE[JobId(1)]!!
@@ -105,7 +106,10 @@ class CurrencyConverter {
 
 class RaiseCurrencyConverter(private val currencyConverter: CurrencyConverter) {
 
-    context (Raise<Throwable>)
-    fun convertUsdToEur(amount: Double?): Double =
+    context (Raise<NegativeSalary>)
+    fun convertUsdToEur(amount: Double?): Double = catch ({
         currencyConverter.convertUsdToEur(amount)
+    }) {_: IllegalArgumentException ->
+        raise(NegativeSalary)
+    }
 }
