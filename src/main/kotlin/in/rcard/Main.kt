@@ -1,6 +1,7 @@
 package `in`.rcard
 
 import arrow.core.raise.fold
+import `in`.rcard.either.JobError
 import `in`.rcard.raise.CurrencyConverter
 import `in`.rcard.raise.RaiseCurrencyConverter
 
@@ -11,7 +12,7 @@ fun main() {
         catch = { ex: Throwable ->
             println("An exception was thrown: $ex")
         },
-        recover = { error: Throwable ->
+        recover = { error: JobError ->
             println("An error was raised: $error")
         },
         transform = { salaryInEur: Double ->
