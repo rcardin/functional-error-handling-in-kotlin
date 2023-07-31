@@ -1,6 +1,7 @@
 package `in`.rcard.raise
 
 import arrow.core.Either
+import arrow.core.None
 import arrow.core.raise.Raise
 import arrow.core.raise.catch
 import arrow.core.raise.either
@@ -81,6 +82,9 @@ interface Jobs {
 
     context (Raise<JobError>)
     fun findById(id: JobId): Job
+
+    context (Raise<None>)
+    fun findByIdWithOption(id: JobId): Job
 }
 
 class LiveJobs : Jobs {
@@ -88,6 +92,11 @@ class LiveJobs : Jobs {
     context (Raise<JobError>)
     override fun findById(id: JobId): Job {
         return JOBS_DATABASE[id] ?: raise(JobNotFound(id))
+    }
+
+    context (Raise<None>)
+    override fun findByIdWithOption(id: JobId): Job {
+        return JOBS_DATABASE[id] ?: raise(None)
     }
 }
 
@@ -109,9 +118,9 @@ class CurrencyConverter {
 class RaiseCurrencyConverter(private val currencyConverter: CurrencyConverter) {
 
     context (Raise<NegativeSalary>)
-    fun convertUsdToEur(amount: Double?): Double = catch ({
+    fun convertUsdToEur(amount: Double?): Double = catch({
         currencyConverter.convertUsdToEur(amount)
-    }) {_: IllegalArgumentException ->
+    }) { _: IllegalArgumentException ->
         raise(NegativeSalary)
     }
 }
