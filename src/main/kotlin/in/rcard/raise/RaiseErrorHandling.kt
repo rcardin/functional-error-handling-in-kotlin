@@ -2,14 +2,17 @@ package `in`.rcard.raise
 
 import arrow.core.Either
 import arrow.core.None
+import arrow.core.Option
 import arrow.core.raise.Raise
 import arrow.core.raise.catch
 import arrow.core.raise.either
 import arrow.core.raise.fold
+import arrow.core.raise.option
 import `in`.rcard.domain.Company
 import `in`.rcard.domain.JOBS_DATABASE
 import `in`.rcard.domain.Job
 import `in`.rcard.domain.JobId
+import `in`.rcard.domain.Salary
 import `in`.rcard.either.JobError
 import `in`.rcard.either.JobNotFound
 import `in`.rcard.either.NegativeSalary
@@ -54,13 +57,15 @@ class JobsService(private val jobs: Jobs, private val converter: CurrencyConvert
     )
 
     fun company(jobId: JobId): Either<JobError, Company> = either {
-        jobs.findById(jobId)
-    }.map { job ->
-        job.company
+        jobs.findById(jobId).company
     }
 
     context (Raise<JobError>)
     fun companyWithRaise(jobId: JobId): Company = company(jobId).bind()
+
+    fun salary(jobId: JobId): Option<Salary> = option {
+        jobs.findByIdWithOption(jobId).salary
+    }
 
     context (Raise<JobError>, Raise<Throwable>)
     fun salaryInEur(jobId: JobId): Double {
