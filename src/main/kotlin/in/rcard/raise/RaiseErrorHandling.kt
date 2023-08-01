@@ -3,16 +3,19 @@ package `in`.rcard.raise
 import arrow.core.Either
 import arrow.core.None
 import arrow.core.Option
+import arrow.core.raise.NullableRaise
 import arrow.core.raise.OptionRaise
 import arrow.core.raise.Raise
 import arrow.core.raise.catch
 import arrow.core.raise.either
 import arrow.core.raise.fold
+import arrow.core.raise.nullable
 import arrow.core.raise.option
 import `in`.rcard.domain.Company
 import `in`.rcard.domain.JOBS_DATABASE
 import `in`.rcard.domain.Job
 import `in`.rcard.domain.JobId
+import `in`.rcard.domain.Role
 import `in`.rcard.domain.Salary
 import `in`.rcard.either.JobError
 import `in`.rcard.either.JobNotFound
@@ -71,6 +74,13 @@ class JobsService(private val jobs: Jobs, private val converter: CurrencyConvert
     context (OptionRaise)
     fun salaryWithRaise(jobId: JobId): Salary = salary(jobId).bind()
 
+    fun role(jobId: JobId): Role? = nullable {
+        jobs.findByIdWithNullable(jobId)?.role
+    }
+
+    context (NullableRaise)
+    fun roleWithRaise(jobId: JobId): Role = role(jobId).bind()
+
     context (Raise<JobError>, Raise<Throwable>)
     fun salaryInEur(jobId: JobId): Double {
         val job = jobs.findById(jobId)
@@ -94,6 +104,9 @@ interface Jobs {
 
     context (Raise<None>)
     fun findByIdWithOption(id: JobId): Job
+
+    context (NullableRaise)
+    fun findByIdWithNullable(id: JobId): Job?
 }
 
 class LiveJobs : Jobs {
@@ -106,6 +119,11 @@ class LiveJobs : Jobs {
     context (Raise<None>)
     override fun findByIdWithOption(id: JobId): Job {
         return JOBS_DATABASE[id] ?: raise(None)
+    }
+
+    context(NullableRaise)
+    override fun findByIdWithNullable(id: JobId): Job {
+        return JOBS_DATABASE[id] ?: raise(null)
     }
 }
 
