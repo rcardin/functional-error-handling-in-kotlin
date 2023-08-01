@@ -3,6 +3,7 @@ package `in`.rcard.raise
 import arrow.core.Either
 import arrow.core.None
 import arrow.core.Option
+import arrow.core.raise.OptionRaise
 import arrow.core.raise.Raise
 import arrow.core.raise.catch
 import arrow.core.raise.either
@@ -66,6 +67,9 @@ class JobsService(private val jobs: Jobs, private val converter: CurrencyConvert
     fun salary(jobId: JobId): Option<Salary> = option {
         jobs.findByIdWithOption(jobId).salary
     }
+
+    context (OptionRaise)
+    fun salaryWithRaise(jobId: JobId): Salary = salary(jobId).bind()
 
     context (Raise<JobError>, Raise<Throwable>)
     fun salaryInEur(jobId: JobId): Double {
