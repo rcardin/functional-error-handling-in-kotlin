@@ -75,7 +75,7 @@ class JobsService(private val jobs: Jobs, private val converter: CurrencyConvert
     fun salaryWithRaise(jobId: JobId): Salary = salary(jobId).bind()
 
     fun role(jobId: JobId): Role? = nullable {
-        jobs.findByIdWithNullable(jobId)?.role
+        jobs.findByIdWithNullable(jobId).role
     }
 
     context (NullableRaise)
@@ -106,7 +106,7 @@ interface Jobs {
     fun findByIdWithOption(id: JobId): Job
 
     context (NullableRaise)
-    fun findByIdWithNullable(id: JobId): Job?
+    fun findByIdWithNullable(id: JobId): Job
 }
 
 class LiveJobs : Jobs {
