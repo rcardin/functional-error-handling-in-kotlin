@@ -74,6 +74,9 @@ class JobsService(private val jobs: Jobs, private val converter: CurrencyConvert
     context (OptionRaise)
     fun salaryWithRaise(jobId: JobId): Salary = salary(jobId).bind()
 
+    context (NullableRaise)
+    fun salaryWithNullableRaise(jobId: JobId): Salary = salary(jobId).bind()
+
     fun role(jobId: JobId): Role? = nullable {
         jobs.findByIdWithNullable(jobId).role
     }
