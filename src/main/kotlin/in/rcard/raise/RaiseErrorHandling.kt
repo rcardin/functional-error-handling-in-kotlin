@@ -6,11 +6,13 @@ import arrow.core.Option
 import arrow.core.raise.NullableRaise
 import arrow.core.raise.OptionRaise
 import arrow.core.raise.Raise
+import arrow.core.raise.ResultRaise
 import arrow.core.raise.catch
 import arrow.core.raise.either
 import arrow.core.raise.fold
 import arrow.core.raise.nullable
 import arrow.core.raise.option
+import arrow.core.raise.result
 import `in`.rcard.domain.Company
 import `in`.rcard.domain.JOBS_DATABASE
 import `in`.rcard.domain.Job
@@ -130,7 +132,6 @@ class LiveJobs : Jobs {
     }
 }
 
-context (Raise<Throwable>)
 fun convertUsdToEur(amount: Double?, converter: CurrencyConverter) {
     converter.convertUsdToEur(amount)
 }
@@ -152,5 +153,12 @@ class RaiseCurrencyConverter(private val currencyConverter: CurrencyConverter) {
         currencyConverter.convertUsdToEur(amount)
     }) { _: IllegalArgumentException ->
         raise(NegativeSalary)
+    }
+
+    context (ResultRaise)
+    fun convertUsdToEurRaiseException(amount: Double?): Double = catch({
+        currencyConverter.convertUsdToEur(amount)
+    }) { ex: IllegalArgumentException ->
+        raise(ex)
     }
 }
