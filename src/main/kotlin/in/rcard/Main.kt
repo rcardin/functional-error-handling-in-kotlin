@@ -1,19 +1,13 @@
 package `in`.rcard
 
-import arrow.core.raise.ResultRaise
-import arrow.core.raise.result
+import arrow.core.raise.recover
+import `in`.rcard.either.JobError
 import `in`.rcard.raise.CurrencyConverter
 import `in`.rcard.raise.RaiseCurrencyConverter
 
 fun main() {
     val converter = RaiseCurrencyConverter(CurrencyConverter())
-    val maybeSalaryInEur: (Double) -> Result<Double> = { salary: Double ->
-        result {
-            converter.convertUsdToEurRaiseException(salary)
-        }
-    }
-
-    val maybeSalaryInEurRaise: context(ResultRaise) (Double) -> Double = { salary: Double ->
-        maybeSalaryInEur(salary).bind()
+    recover({ converter.convertUsdToEur(-1.0) }) { _: JobError ->
+        0.0
     }
 }
