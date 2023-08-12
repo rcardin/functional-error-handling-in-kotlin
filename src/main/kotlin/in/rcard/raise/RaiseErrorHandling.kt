@@ -99,7 +99,13 @@ class JobsService(private val jobs: Jobs, private val converter: CurrencyConvert
         )
     }
 
-
+    context (Raise<JobError>)
+    fun getSalaryGapWithMax(jobId: JobId): Double {
+        val job: Job = jobs.findById(jobId)
+        val jobList: List<Job> = jobs.findAll()
+        val maxSalary: Salary = jobList.maxSalary()
+        return maxSalary.value - job.salary.value
+    }
 }
 
 interface Jobs {
@@ -141,6 +147,14 @@ class LiveJobs : Jobs {
         return JOBS_DATABASE[id] ?: raise(null)
     }
 }
+
+context (Raise<JobError>)
+private fun List<Job>.maxSalary(): Salary =
+    if (isEmpty()) {
+        raise(GenericError("No jobs found"))
+    } else {
+        this.maxBy { it.salary.value }.salary
+    }
 
 fun convertUsdToEur(amount: Double?, converter: CurrencyConverter) {
     converter.convertUsdToEur(amount)
