@@ -18,6 +18,7 @@ import `in`.rcard.domain.Job
 import `in`.rcard.domain.JobId
 import `in`.rcard.domain.Role
 import `in`.rcard.domain.Salary
+import `in`.rcard.either.GenericError
 import `in`.rcard.either.JobError
 import `in`.rcard.either.JobNotFound
 import `in`.rcard.either.NegativeSalary
@@ -106,6 +107,9 @@ interface Jobs {
     context (Raise<JobError>)
     fun findById(id: JobId): Job
 
+    context (Raise<JobError>)
+    fun findAll(): List<Job>
+
     context (Raise<None>)
     fun findByIdWithOption(id: JobId): Job
 
@@ -118,6 +122,13 @@ class LiveJobs : Jobs {
     context (Raise<JobError>)
     override fun findById(id: JobId): Job {
         return JOBS_DATABASE[id] ?: raise(JobNotFound(id))
+    }
+
+    context(Raise<JobError>)
+    override fun findAll(): List<Job> = catch({
+        JOBS_DATABASE.values.toList()
+    }) { _: Throwable ->
+        raise(GenericError("An error occurred while retrieving all the jobs"))
     }
 
     context (Raise<None>)
