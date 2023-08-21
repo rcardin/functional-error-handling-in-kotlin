@@ -23,6 +23,9 @@ import `in`.rcard.either.JobError
 import `in`.rcard.either.JobNotFound
 import `in`.rcard.either.NegativeSalary
 
+sealed interface CurrencyConversionError
+data object NegativeAmount : CurrencyConversionError
+
 context(Raise<JobNotFound>)
 fun appleJob(): Job = JOBS_DATABASE[JobId(1)]!!
 
@@ -47,7 +50,7 @@ val consoleLogger = object : Logger {
     }
 }
 
-class JobsService(private val jobs: Jobs, private val converter: CurrencyConverter) {
+class JobsService(private val jobs: Jobs, private val converter: RaiseCurrencyConverter) {
 
     fun printSalary(jobId: JobId) = fold(
         block = { jobs.findById(jobId) },
@@ -105,6 +108,15 @@ class JobsService(private val jobs: Jobs, private val converter: CurrencyConvert
         val jobList: List<Job> = jobs.findAll()
         val maxSalary: Salary = jobList.maxSalary()
         return maxSalary.value - job.salary.value
+    }
+
+    context (Raise<JobError>, Raise<NegativeAmount>)
+    fun getSalaryGapWithMaxInEur(jobId: JobId): Double {
+        val job: Job = jobs.findById(jobId)
+        val jobList: List<Job> = jobs.findAll()
+        val maxSalary: Salary = jobList.maxSalary()
+        val salaryGap = maxSalary.value - job.salary.value
+        return converter.convertUsdToEurRaisingNegativeAmount(salaryGap)
     }
 }
 
@@ -177,6 +189,13 @@ class RaiseCurrencyConverter(private val currencyConverter: CurrencyConverter) {
         currencyConverter.convertUsdToEur(amount)
     }) { _: IllegalArgumentException ->
         raise(NegativeSalary)
+    }
+
+    context (Raise<NegativeAmount>)
+    fun convertUsdToEurRaisingNegativeAmount(amount: Double?): Double = catch({
+        currencyConverter.convertUsdToEur(amount)
+    }) { _: IllegalArgumentException ->
+        raise(NegativeAmount)
     }
 
     context (ResultRaise)
