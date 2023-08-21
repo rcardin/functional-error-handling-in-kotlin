@@ -1,8 +1,10 @@
 package `in`.rcard.raise
 
 import arrow.core.Either
+import arrow.core.NonEmptyList
 import arrow.core.None
 import arrow.core.Option
+import arrow.core.mapOrAccumulate
 import arrow.core.raise.NullableRaise
 import arrow.core.raise.OptionRaise
 import arrow.core.raise.Raise
@@ -121,6 +123,9 @@ class JobsService(private val jobs: Jobs, private val converter: RaiseCurrencyCo
             converter.convertUsdToEurRaisingNegativeAmount(salaryGap)
         }
     }
+
+    fun getSalaryGapWithMax(jobIdList: List<JobId>): Either<NonEmptyList<JobError>, List<Double>> =
+        jobIdList.mapOrAccumulate { getSalaryGapWithMax(it) }
 }
 
 interface Jobs {
