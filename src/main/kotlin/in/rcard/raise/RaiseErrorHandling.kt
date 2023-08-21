@@ -12,6 +12,7 @@ import arrow.core.raise.either
 import arrow.core.raise.fold
 import arrow.core.raise.nullable
 import arrow.core.raise.option
+import arrow.core.raise.withError
 import `in`.rcard.domain.Company
 import `in`.rcard.domain.JOBS_DATABASE
 import `in`.rcard.domain.Job
@@ -110,13 +111,15 @@ class JobsService(private val jobs: Jobs, private val converter: RaiseCurrencyCo
         return maxSalary.value - job.salary.value
     }
 
-    context (Raise<JobError>, Raise<NegativeAmount>)
+    context (Raise<JobError>)
     fun getSalaryGapWithMaxInEur(jobId: JobId): Double {
         val job: Job = jobs.findById(jobId)
         val jobList: List<Job> = jobs.findAll()
         val maxSalary: Salary = jobList.maxSalary()
         val salaryGap = maxSalary.value - job.salary.value
-        return converter.convertUsdToEurRaisingNegativeAmount(salaryGap)
+        return withError({ NegativeSalary }) {
+            converter.convertUsdToEurRaisingNegativeAmount(salaryGap)
+        }
     }
 }
 
