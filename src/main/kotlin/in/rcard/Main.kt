@@ -9,7 +9,7 @@ import `in`.rcard.raise.RaiseCurrencyConverter
 
 fun main() {
     val service = JobsService(LiveJobs(), RaiseCurrencyConverter(CurrencyConverter()))
-    fold({ service.getSalaryGapWithMax(JobId(42)) },
-        { error -> println("An error was raised: $error") },
-        { salaryGap -> println("The salary gap is $salaryGap") })
+    fold({ service.getSalaryGapWithMax(listOf(JobId(1), JobId(42), JobId(-1))) },
+        { error -> println("The risen errors are: $error") },
+        { salaryGap -> println("The list of salary gaps is $salaryGap") })
 }
