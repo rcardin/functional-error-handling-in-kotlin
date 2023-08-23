@@ -7,7 +7,6 @@ import arrow.core.Option
 import arrow.core.raise.NullableRaise
 import arrow.core.raise.OptionRaise
 import arrow.core.raise.Raise
-import arrow.core.raise.RaiseAccumulate
 import arrow.core.raise.ResultRaise
 import arrow.core.raise.catch
 import arrow.core.raise.either
@@ -127,7 +126,7 @@ class JobsService(private val jobs: Jobs, private val converter: RaiseCurrencyCo
 
     context (Raise<NonEmptyList<JobError>>)
     fun getSalaryGapWithMax(jobIdList: List<JobId>): List<Double> =
-        mapOrAccumulate(jobIdList){ getSalaryGapWithMax(it) }
+        mapOrAccumulate(jobIdList) { getSalaryGapWithMax(it) }
 }
 
 interface Jobs {
@@ -214,4 +213,8 @@ class RaiseCurrencyConverter(private val currencyConverter: CurrencyConverter) {
     }) { ex: IllegalArgumentException ->
         raise(ex)
     }
+}
+
+object ValidatedJob {
+    // TODO
 }
