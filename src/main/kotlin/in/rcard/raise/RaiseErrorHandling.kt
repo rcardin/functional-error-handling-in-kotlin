@@ -10,11 +10,13 @@ import arrow.core.raise.Raise
 import arrow.core.raise.ResultRaise
 import arrow.core.raise.catch
 import arrow.core.raise.either
+import arrow.core.raise.ensure
 import arrow.core.raise.fold
 import arrow.core.raise.mapOrAccumulate
 import arrow.core.raise.nullable
 import arrow.core.raise.option
 import arrow.core.raise.withError
+import arrow.core.raise.zipOrAccumulate
 import `in`.rcard.domain.Company
 import `in`.rcard.domain.JOBS_DATABASE
 import `in`.rcard.domain.Job
@@ -216,5 +218,29 @@ class RaiseCurrencyConverter(private val currencyConverter: CurrencyConverter) {
 }
 
 object ValidatedJob {
-    // TODO
+
+    sealed interface SalaryError
+    data object NegativeAmount : SalaryError
+    data class InvalidCurrency(val message: String) : SalaryError
+
+
+    data class Salary private constructor(val amount: Double, val currency: String) {
+        companion object {
+            //                ensure(amount >= 0.0) { NegativeAmount }
+//                ensure(currency.isNotEmpty() && currency.matches("[A-Z]{3}".toRegex())) { InvalidCurrency("Currency must be not empty and valid") }
+//                Salary(amount, currency)
+            operator fun invoke(amount: Double, currency: String): Either<NonEmptyList<SalaryError>, Salary> = either {
+                zipOrAccumulate(
+                    { ensure(amount >= 0.0) { NegativeAmount } },
+                    {
+                        ensure(currency.isNotEmpty() && currency.matches("[A-Z]{3}".toRegex())) {
+                            InvalidCurrency("Currency must be not empty and valid")
+                        }
+                    },
+                ) { _, _ ->
+                    Salary(amount, currency)
+                }
+            }
+        }
+    }
 }
