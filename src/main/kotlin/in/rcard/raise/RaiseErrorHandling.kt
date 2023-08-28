@@ -229,7 +229,8 @@ object ValidatedJob {
             //                ensure(amount >= 0.0) { NegativeAmount }
 //                ensure(currency.isNotEmpty() && currency.matches("[A-Z]{3}".toRegex())) { InvalidCurrency("Currency must be not empty and valid") }
 //                Salary(amount, currency)
-            operator fun invoke(amount: Double, currency: String): Either<NonEmptyList<SalaryError>, Salary> = either {
+            context (Raise<NonEmptyList<SalaryError>>)
+            operator fun invoke(amount: Double, currency: String): Salary =
                 zipOrAccumulate(
                     { ensure(amount >= 0.0) { NegativeAmount } },
                     {
@@ -240,7 +241,6 @@ object ValidatedJob {
                 ) { _, _ ->
                     Salary(amount, currency)
                 }
-            }
         }
     }
 }
