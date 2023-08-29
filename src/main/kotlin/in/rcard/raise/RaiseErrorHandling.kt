@@ -25,8 +25,10 @@ import `in`.rcard.domain.Role
 import `in`.rcard.domain.Salary
 import `in`.rcard.either.GenericError
 import `in`.rcard.either.JobError
+import `in`.rcard.either.JobErrors
 import `in`.rcard.either.JobNotFound
 import `in`.rcard.either.NegativeSalary
+import `in`.rcard.either.plus
 
 sealed interface CurrencyConversionError
 data object NegativeAmount : CurrencyConversionError
@@ -129,6 +131,14 @@ class JobsService(private val jobs: Jobs, private val converter: RaiseCurrencyCo
     context (Raise<NonEmptyList<JobError>>)
     fun getSalaryGapWithMax(jobIdList: List<JobId>): List<Double> =
         mapOrAccumulate(jobIdList) { getSalaryGapWithMax(it) }
+
+    context (Raise<JobErrors>)
+    fun getSalaryGapWithMaxJobErrors(jobIdList: List<JobId>) =
+        mapOrAccumulate(jobIdList, JobErrors::plus) {
+            withError({ jobError -> JobErrors(jobError.toString()) }) {
+                getSalaryGapWithMax(it)
+            }
+        }
 }
 
 interface Jobs {

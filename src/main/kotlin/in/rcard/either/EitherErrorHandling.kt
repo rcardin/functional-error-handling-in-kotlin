@@ -21,6 +21,9 @@ data class JobNotFound(val jobId: JobId) : JobError
 data class GenericError(val cause: String) : JobError
 data object NegativeSalary : JobError
 
+data class JobErrors(val messages: String) : JobError
+operator fun JobErrors.plus(other: JobErrors): JobErrors = JobErrors("$messages, ${other.messages}")
+
 object EitherJobDomain {
     @JvmInline
     value class Salary private constructor(val value: Double) {
@@ -52,7 +55,9 @@ val jobCompany2: String = appleJob.map { it.company.name }.getOrElse { jobError 
         is JobNotFound -> "Job not found"
         is GenericError -> "Generic error"
         is NegativeSalary -> "Negative amount"
+        else -> "Unknown error"
     }
+
 }
 
 fun printSalary(maybeJob: Either<JobError, Job>) = when (maybeJob) {

@@ -1,10 +1,15 @@
 package `in`.rcard
 
 import arrow.core.raise.fold
-import `in`.rcard.raise.ValidatedJob
+import `in`.rcard.domain.JobId
+import `in`.rcard.raise.CurrencyConverter
+import `in`.rcard.raise.JobsService
+import `in`.rcard.raise.LiveJobs
+import `in`.rcard.raise.RaiseCurrencyConverter
 
 fun main() {
-    fold({ ValidatedJob.Salary(-1.0, "eu") },
+    val jobService = JobsService(LiveJobs(), RaiseCurrencyConverter(CurrencyConverter()))
+    fold({ jobService.getSalaryGapWithMaxJobErrors(listOf(JobId(-1), JobId(42))) },
         { error -> println("The risen errors are: $error") },
-        { salary -> println("The valid salary is $salary") })
+        { salaryGaps -> println("The salary gaps are $salaryGaps") })
 }
