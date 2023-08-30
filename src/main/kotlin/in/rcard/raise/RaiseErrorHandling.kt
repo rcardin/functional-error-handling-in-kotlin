@@ -25,10 +25,8 @@ import `in`.rcard.domain.Role
 import `in`.rcard.domain.Salary
 import `in`.rcard.either.GenericError
 import `in`.rcard.either.JobError
-import `in`.rcard.either.JobErrors
 import `in`.rcard.either.JobNotFound
 import `in`.rcard.either.NegativeSalary
-import `in`.rcard.either.plus
 
 sealed interface CurrencyConversionError
 data object NegativeAmount : CurrencyConversionError
@@ -140,6 +138,10 @@ class JobsService(private val jobs: Jobs, private val converter: RaiseCurrencyCo
             }
         }
 }
+
+data class JobErrors(val messages: String = "")
+
+operator fun JobErrors.plus(other: JobErrors): JobErrors = JobErrors("$messages, ${other.messages}")
 
 interface Jobs {
 

@@ -21,9 +21,6 @@ data class JobNotFound(val jobId: JobId) : JobError
 data class GenericError(val cause: String) : JobError
 data object NegativeSalary : JobError
 
-data class JobErrors(val messages: String) : JobError
-operator fun JobErrors.plus(other: JobErrors): JobErrors = JobErrors("$messages, ${other.messages}")
-
 object EitherJobDomain {
     @JvmInline
     value class Salary private constructor(val value: Double) {
