@@ -143,6 +143,8 @@ data class JobErrors(val messages: String = "")
 
 operator fun JobErrors.plus(other: JobErrors): JobErrors = JobErrors("$messages, ${other.messages}")
 
+fun JobErrors.combine(other: JobErrors): JobErrors = JobErrors("$messages, ${other.messages}")
+
 interface Jobs {
 
     context (Raise<JobError>)
